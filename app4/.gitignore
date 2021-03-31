@@ -1,0 +1,43 @@
+
+###> symfony/framework-bundle ###
+/.env.local
+/.env.local.php
+/.env.*.local
+/config/secrets/prod/prod.decrypt.private.php
+/public/bundles/
+
+/var/cache/
+/var/log/
+/var/sessions/
+/var/spool/
+
+
+/vendor/
+###< symfony/framework-bundle ###
+node_modules/
+.npm
+node_modules
+build
+npm-debug.log
+.env
+.DS_Store
+
+###> phpunit/phpunit ###
+/phpunit.xml
+.phpunit.result.cache
+###< phpunit/phpunit ###
+
+###> symfony/phpunit-bridge ###
+.phpunit
+.phpunit.result.cache
+/phpunit.xml
+###< symfony/phpunit-bridge ###
+
+###> friendsofphp/php-cs-fixer ###
+/.php_cs
+/.php_cs.cache
+###< friendsofphp/php-cs-fixer ###
+
+###> lexik/jwt-authentication-bundle ###
+# /config/jwt/*.pem
+###< lexik/jwt-authentication-bundle ###

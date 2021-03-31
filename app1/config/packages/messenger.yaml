@@ -8,7 +8,31 @@ framework:
             # async: '%env(MESSENGER_TRANSPORT_DSN)%'
             # failed: 'doctrine://default?queue_name=failed'
             # sync: 'sync://'
+            fanout:
+                dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
+                options:
+                    exchange:
+                        name: order.fanout
+                        type: fanout
+                    queues:
+                        order1.fanout:
+                        order2.fanout:
+            direct:
+                dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
+                options:
+                    exchange:
+                        name: sms.direct
+                        type: direct
+                    queues:
+                        sms.service1:
+                            binding_keys: ['sms1']
+                        sms.service2:
+                            binding_keys: ['sms2']
 
         routing:
             # Route your messages to the transports
             # 'App\Message\YourMessage': async
+            # 'App\Message\Command\CreateOrder': async
+            # 'App\Message\Command\SignUpSms': async
+            'App\Message\Command\CreateOrder': fanout
+            'App\Message\Command\SignUpSms': direct

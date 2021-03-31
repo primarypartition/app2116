@@ -2,15 +2,15 @@
 
 namespace App\Controller;
 
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Messenger\MessageBusInterface;
-use Symfony\Component\Messenger\HandleTrait;
-
-use App\Message\Query\SearchQuery;
 use App\Message\Command\CreateOrder;
 use App\Message\Command\SignUpSms;
+use App\Message\Query\SearchQuery;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Messenger\HandleTrait;
+use Symfony\Component\Messenger\MessageBusInterface;
+use Symfony\Component\Messenger\Transport\AmqpExt\AmqpStamp;
+use Symfony\Component\Routing\Annotation\Route;
 
 class EshopController extends AbstractController
 {
@@ -20,7 +20,7 @@ class EshopController extends AbstractController
      * @var MessageBusInterface
      */
     private $messageBus;
-    
+
     public function __construct(MessageBusInterface $messageBus)
     {
         $this->messageBus = $messageBus;
@@ -41,11 +41,11 @@ class EshopController extends AbstractController
     public function search()
     {
         $search = 'laptops';
-        
+
         // $this->messageBus->dispatch(new SearchQuery($search));
         $result = $this->handle(new SearchQuery($search));
 
-        return new Response('Your search results for '.$search.$result);
+        return new Response('Your search results for ' . $search . $result);
     }
 
     /**
@@ -54,9 +54,12 @@ class EshopController extends AbstractController
     public function SignUpSMS()
     {
         $phoneNumber = '111 222 333 ';
-        $this->messageBus->dispatch(new SignUpSms($phoneNumber));
+        $attributes = [];
+        $routingKey = ['sms1', 'sms2'];
+        $routingKey = $routingKey[random_int(0, 1)];
+        $this->messageBus->dispatch(new SignUpSms($phoneNumber), [new AmqpStamp($routingKey, AMQP_NOPARAM, $attributes)]);
 
-        return new Response(sprintf('Your phone number %s succesfully signed up to SMS newsletter!',$phoneNumber));
+        return new Response(sprintf('Your phone number %s succesfully signed up to SMS newsletter!', $phoneNumber));
     }
 
     /**
@@ -71,7 +74,6 @@ class EshopController extends AbstractController
 
         $this->messageBus->dispatch(new CreateOrder($productId, $productAmount));
 
-        return new Response('You succesfully ordered your product!: '.$productName);
+        return new Response('You succesfully ordered your product!: ' . $productName);
     }
 }
-

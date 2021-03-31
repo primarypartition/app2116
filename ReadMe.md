@@ -6,6 +6,12 @@
 
 > composer create-project symfony/skeleton app2116/app1
 
+> composer create-project symfony/skeleton app2116/app2
+
+> composer create-project symfony/skeleton app2116/app3
+
+> composer create-project symfony/skeleton app2116/app4
+
 > php -S 127.0.0.1:8000 -t public
 
 > symfony server:start
@@ -18,13 +24,31 @@
 
 ``` 
 <VirtualHost *:80>   
-	ServerName local.app2116
+	ServerName local.app2116.app1
 	DocumentRoot "C:\xampp\htdocs\app2116\app1\public" 
+</VirtualHost>
+
+<VirtualHost *:80>   
+	ServerName local.app2116.app2
+	DocumentRoot "C:\xampp\htdocs\app2116\app2\public" 
+</VirtualHost>
+
+<VirtualHost *:80>   
+	ServerName local.app2116.app3
+	DocumentRoot "C:\xampp\htdocs\app2116\app3\public" 
+</VirtualHost>
+
+<VirtualHost *:80>   
+	ServerName local.app2116.app4
+	DocumentRoot "C:\xampp\htdocs\app2116\app4\public" 
 </VirtualHost>
 ```
 
 ```
-127.0.0.1        local.app2116
+127.0.0.1        local.app2116.app1
+127.0.0.1        local.app2116.app2
+127.0.0.1        local.app2116.app3
+127.0.0.1        local.app2116.app4
 ```
 
 > https://symfony.com/download
@@ -39,12 +63,22 @@
 
 > https://docs.microsoft.com/en-us/azure/architecture/patterns/cqrs
 
+> bin/console messenger:consume -vv
+
 
 # Symfony Packages
+
+## app1
 
 > https://symfony.com/doc/current/components/messenger.html
 
 > composer require symfony/messenger
+
+> .env update
+
+```
+MESSENGER_TRANSPORT_DSN=amqp://guest:guest@localhost:5672/%2f/messages
+```
 
 > composer require symfony/apache-pack
 
@@ -52,18 +86,113 @@
 
 > composer require doctrine maker
 
+## app2, app3, app4
+
+> composer require symfony/messenger
+
+> .env update
+
+```
+MESSENGER_TRANSPORT_DSN=amqp://guest:guest@localhost:5672/%2f/messages
+```
 
 # RabbitMQ
 
+## app1
+
+> https://www.rabbitmq.com/download.html
+
 > https://www.rabbitmq.com/install-windows.html
+
+> https://www.rabbitmq.com/which-erlang.html
+
+> https://www.erlang.org/downloads
+
+> cd C:\Program Files\RabbitMQ Server\rabbitmq_server-3.8.14\sbin
+
+> Run cmd as admin: rabbitmq-plugins.bat enable rabbitmq_management
+
+> http://localhost:15672/
+
+> username: guest
+
+> password: guest
+
+> php -i|findstr "Thread"
+
+> https://github.com/php-amqp/php-amqp
+
+> https://pecl.php.net/package/amqp
+
+> https://pecl.php.net/package-info.php?package=amqp&version=1.9.4
+
+> https://pecl.php.net/package/amqp/1.9.4/windows
+
+
+```
+Before download, check if your PHP installation is thread safe or non-thread safe by entering php -i|findstr "Thread" in your terminal
+
+Download thread safe or non-thread safe version of the extension for your PHP version from https://pecl.php.net/package/amqp. Look for the "DLL" link next to each release in the list of available releases
+
+After download, copy the rabbitmq.4.dll and rabbitmq.4.pdb files to the PHP root folder and copy php_amqp.dll and php_amqp.pdb files to PHP\ext folder
+
+Add extension=amqp to the php.ini file or
+
+extension=php_amqp.dll > php.ini and extension_dir = "ext"
+
+Check if the module is properly installed with php -m
+```
+
+> .env update
+
+```
+MESSENGER_TRANSPORT_DSN=amqp://guest:guest@localhost:5672/%2f/messages
+```
+
+> Add exchange
+
+```
+name: order.fanout
+type: fanout
+
+name: sms.direct
+type: direct
+```
+
+> Add Queues
+
+```
+queues:
+    order1.fanout:
+    order2.fanout:
+
+bind exchange to queue:
+    name: order.fanout
+```
+
+
+```
+queues:
+sms.service1:
+    binding_keys: ['sms1']
+sms.service2:
+    binding_keys: ['sms2']
+
+bind exchange to queue:
+    name: sms.direct
+    routing key: sms1 and sms2
+```
 
 
 # Database 
+
+## app1
 
 > .env
 
 ```
 DATABASE_URL="sqlite:///%kernel.project_dir%/var/data.db"
+MESSENGER_TRANSPORT_DSN=doctrine://default
 ```
 
 > bin/console doctrine:database:create
@@ -165,6 +294,8 @@ bin/console doctrine:fixtures:load -n -q
 > bin/console make:voter
 
 > bin/console make:entity --regenerate
+
+> bin/console messenger:consume -vv
 
 
 # Swiftmailer
