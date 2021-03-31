@@ -4,7 +4,7 @@
 
 > https://symfony.com/doc/current/setup.html
 
-> composer create-project symfony/skeleton app2116
+> composer create-project symfony/skeleton app2116/app1
 
 > php -S 127.0.0.1:8000 -t public
 
@@ -12,12 +12,14 @@
 
 > composer dump-autoload
 
+> bin/console cache:clear
+
 > composer create-project symfony/website-skeleton ./ "5.0.*"
 
 ``` 
 <VirtualHost *:80>   
 	ServerName local.app2116
-	DocumentRoot "C:\xampp\htdocs\app2116\public" 
+	DocumentRoot "C:\xampp\htdocs\app2116\app1\public" 
 </VirtualHost>
 ```
 
@@ -35,11 +37,25 @@
 
 > composer remove symfony/requirements-checker
 
+> https://docs.microsoft.com/en-us/azure/architecture/patterns/cqrs
+
 
 # Symfony Packages
 
-> 
+> https://symfony.com/doc/current/components/messenger.html
 
+> composer require symfony/messenger
+
+> composer require symfony/apache-pack
+
+> composer require --dev symfony/profiler-pack
+
+> composer require doctrine maker
+
+
+# RabbitMQ
+
+> https://www.rabbitmq.com/install-windows.html
 
 
 # Database 
@@ -101,6 +117,8 @@ bin/console doctrine:fixtures:load -n -q
 > bin/console doctrine:migrations:migrate
 
 > bin/console debug:container
+
+> bin/console debug:messenger
 
 > bin/console debug:event
 
@@ -231,6 +249,6 @@ Change the HerokuCache.php/FilesCache.php file from the Utils folder to look lik
 git init
 git add .
 git commit -m "project init"
-git remote add origin https://github.com/primarypartition/app2115.git
+git remote add origin https://github.com/primarypartition/app2116.git
 git push -u origin master
 ```

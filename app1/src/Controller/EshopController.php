@@ -5,9 +5,26 @@ namespace App\Controller;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Messenger\MessageBusInterface;
+use Symfony\Component\Messenger\HandleTrait;
+
+use App\Message\Query\SearchQuery;
+use App\Message\Command\CreateOrder;
+use App\Message\Command\SignUpSms;
 
 class EshopController extends AbstractController
 {
+    use HandleTrait;
+
+    /**
+     * @var MessageBusInterface
+     */
+    private $messageBus;
+    
+    public function __construct(MessageBusInterface $messageBus)
+    {
+        $this->messageBus = $messageBus;
+    }
     /**
      * @Route("/", name="eshop")
      */
@@ -24,9 +41,9 @@ class EshopController extends AbstractController
     public function search()
     {
         $search = 'laptops';
-        // call database
-        sleep(1);
-        $result = ' result from database';
+        
+        // $this->messageBus->dispatch(new SearchQuery($search));
+        $result = $this->handle(new SearchQuery($search));
 
         return new Response('Your search results for '.$search.$result);
     }
@@ -37,8 +54,7 @@ class EshopController extends AbstractController
     public function SignUpSMS()
     {
         $phoneNumber = '111 222 333 ';
-        // connect to api of external sms service provider
-        sleep(2);
+        $this->messageBus->dispatch(new SignUpSms($phoneNumber));
 
         return new Response(sprintf('Your phone number %s succesfully signed up to SMS newsletter!',$phoneNumber));
     }
@@ -53,9 +69,7 @@ class EshopController extends AbstractController
         $productAmount = 2;
         // save the order in the database
 
-        // send an email to client confirming the order (product name, amount, price, etc.)
-        // update warehouse database to keep stock up to date in physical stores
-        sleep(4);
+        $this->messageBus->dispatch(new CreateOrder($productId, $productAmount));
 
         return new Response('You succesfully ordered your product!: '.$productName);
     }
